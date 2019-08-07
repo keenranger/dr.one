@@ -5,11 +5,10 @@ var s = net.createServer( function (socket) {
         console.log(data.toString());
     });
 });
-
 s.addListener('connection', function (c) {
     c.write('[tcp/ip] hello world!\n');
 });
+s.listen(23452);
 
 console.log('start tcp~~~');
 
-s.listen(23452);
