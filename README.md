@@ -1,16 +1,24 @@
-# 개발환경
-nvm 설치 후 nvm install --lts
-node기반의 개발 예정
+# 참고자료
+쓰레드 동기화 : https://niceman.tistory.com/139
+# SPRacingF3
+보드 정보 : https://cleanflight.readthedocs.io/en/latest/Board%20-%20SPRacingF3/#pinouts  
+msp 정보 : http://www.multiwii.com/wiki/index.php?title=Multiwii_Serial_Protocol
+
+# 데이터 통신 구성
+라파 파이썬에서 지속적으로 attitude읽어와야함(bldc 제어 위함)  
+라파에서는 pwm신호 두개를  bldc esc에 내보내야함  
+라파에서는 서버가 열려있어서 클라이언트가 보내는 메시지를 확인할 수 있어야함  
+그 메시지를 받아와서 msp를 통해 fc보드에 writecmd해야함
 
 # 작업 순서
 
 ## 1. tcp서버 구현 -> 완료
 nodejs 소켓서버 사용해 완료
 ## 2. 명령어 파싱 -> 완료
-tcp서버에서 사용할 명령어와 파싱법
-테스트용 명령어 7,8(GPIO 해당 핀)
-실제 구현용 L(Left), R(Right), F(Forward), B(Backward)
-명령어.숫자(0~100)형태로 메시지 보낼 것
+tcp서버에서 사용할 명령어와 파싱법  
+테스트용 명령어 7,8(GPIO 해당 핀)  
+실제 구현용 L(Left), R(Right), F(Forward), B(Backward)  
+명령어.숫자(0~100)형태로 메시지 보낼 것  
 ***
 pc에서 가능/불가능
 ***
