@@ -8,7 +8,7 @@ lock=Lock()
 def command_parser(msg):
     command_arr = msg.split(".", maxsplit=1)
     parsing_command = command_arr[0].upper()
-    if (parsing_command=='S'): #case for stop
+    if (parsing_command=='S' or parsing_command=='A'): #case for stop or arming
         parsing_value = 0
     else:
         try:  #check value is integer
@@ -19,10 +19,10 @@ def command_parser(msg):
     if ((parsing_value<0) or (parsing_value>100)):
         return 2 #error code 2 : value is not between 0 and 100
 
-    elif ((parsing_command!='F') and (parsing_command!='B') and
-          (parsing_command!='L') and (parsing_command!='R') and
-          (parsing_command!='U') and (parsing_command!='D') and
-          (parsing_command!='S')):
+    elif (parsing_command!='F' and parsing_command!='B' and
+          parsing_command!='L' and parsing_command!='R' and
+          parsing_command!='U' and parsing_command!='D' and
+          parsing_command!='S' and parsing_command!='A'):
         return 3 #error code 3: command is not proper
     else: #acquire and change the value
         global command
