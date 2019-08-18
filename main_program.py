@@ -1,11 +1,16 @@
 from modules import drone_server, drone_msp, drone_calculation
 from threading import Thread, Lock
 import time
+import smbus
+
 if __name__ == '__main__':
+#    arduino_addr = 0x04
+ #   I2Cbus = smbus.SMBus(1) 
+    
     t = Thread(target=drone_server.run_server) #run drone server
     t.start()
-
-    board = drone_msp.MultiWii("/dev/ttyACM0")
+ #   board = drone_msp.MultiWii("/dev/ttyACM0")
+    board = drone_msp.MultiWii("/dev/ttyAMA0")
     try:
         while True:
             action = [1500, 1500, 1500, 800, 1500, 1500, 1500, 1500] #default value
@@ -20,8 +25,9 @@ if __name__ == '__main__':
             if (drone_server.command=='A'):
                 board.arm()
             elif (drone_server.command=='U'):
-                
+                pass
             elif (drone_server.command=='D'):
+                pass
             else:
                 action=drone_calculation(drone_server.command, drone_server.value)
             print(action)
