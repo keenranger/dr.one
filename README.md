@@ -2,13 +2,12 @@
 쓰레드 동기화 : https://niceman.tistory.com/139
 # SPRacingF3
 보드 정보 : https://cleanflight.readthedocs.io/en/latest/Board%20-%20SPRacingF3/#pinouts  
-msp 정보 : http://www.multiwii.com/wiki/index.php?title=Multiwii_Serial_Protocol
 
 # 데이터 통신 구성
-라파 파이썬에서 지속적으로 attitude읽어와야함(bldc 제어 위함)  
-라파에서는 pwm신호 두개를  bldc esc에 내보내야함  
+라파 파이썬에서 지속적으로 attitude읽어오며, 명령어를 msp통해 fc보드로 전송  
+쓰로틀에 따라 bldc 제어를 위해 아두이노와 i2c통신을 함.
+아두이노에서는 받은 정보를 통해 2개의 pwm out  
 라파에서는 서버가 열려있어서 클라이언트가 보내는 메시지를 확인할 수 있어야함  
-그 메시지를 받아와서 msp를 통해 fc보드에 writecmd해야함
 
 # 작업 순서
 
