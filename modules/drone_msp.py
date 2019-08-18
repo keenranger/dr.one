@@ -135,11 +135,18 @@ class MultiWii:
             checksum = checksum ^ i
         total_data.append(checksum)
         try:
+            b = None
+            b = self.ser.write(struct.pack('<3c2B%dHB' % len(data), *total_data))
+        except Exception as error:
+            print ("\n\nError in sendCMDreceiveATT.")
+            print ("("+str(error)+")\n\n")
+            pass
+        '''try:
             start = time.time()
             b = None
             b = self.ser.write(struct.pack('<3c2B%dHB' % len(data), *total_data))
             
-            while True:
+            while True:                
                 header = self.ser.read().decode('utf-8')
                 if header == '$':
                     header = header+self.ser.read(2).decode('utf-8')
@@ -160,7 +167,7 @@ class MultiWii:
         except Exception as error:
             print ("\n\nError in sendCMDreceiveATT.")
             print ("("+str(error)+")\n\n")
-            pass
+            pass'''
 
     """Function to arm / disarm """
     """
@@ -178,7 +185,7 @@ class MultiWii:
         start = time.time()
         while timer < 0.5:
             data = [1500,1500,2000,1000]
-            self.sendCMD(8,MultiWii.SET_RAW_RC,data)
+            self.sendCMDreceiveATT(8,MultiWii.SET_RAW_RC,data)
             time.sleep(0.05)
             timer = timer + (time.time() - start)
             start =  time.time()

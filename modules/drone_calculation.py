@@ -1,7 +1,8 @@
 # hello
 def command_to_action(command, value):
-    action = [1500, 1500, 1500, 1500, 1500, 1500, 1500, 1500]
+    action = [1500, 1500, 1500, 1500]
     if (command == 'S'): #stop = hovering
+        pass
     elif (command == 'F'): #Forward
         action[1] += float(value*5)
     elif (command == 'B'): #Backward
