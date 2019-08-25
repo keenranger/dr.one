@@ -4,9 +4,10 @@ import time
 import smbus
 
 if __name__ == '__main__':
-#    arduino_addr = 0x04
- #   I2Cbus = smbus.SMBus(1) 
-    
+    imu_addr = 0x68
+
+    I2Cbus = smbus.SMBus(1)
+
     t = Thread(target=drone_server.run_server) #run drone server
     t.start()
     board = drone_msp.MultiWii("/dev/ttyACM0") #connect via usb
@@ -14,7 +15,6 @@ if __name__ == '__main__':
     try:
         while True:
             action = [1500, 1500, 1500, 800] #default value
-            
             board.getData(drone_msp.MultiWii.ATTITUDE)
             board.sendCMDreceiveATT(8, drone_msp.MultiWii.SET_RAW_RC, action)
             message = ("angx = {:+.2f} \t angy = {:+.2f} \t heading = {:+.2f} \t \elapsed = {:+.4f} \t"\
