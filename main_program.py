@@ -4,12 +4,12 @@ import time
 import smbus
 
 if __name__ == '__main__':
-    imu_addr = 0x68
-
+    arduino_addr = 0x64
     I2Cbus = smbus.SMBus(1)
 
     t = Thread(target=drone_server.run_server) #run drone server
     t.start()
+
     board = drone_msp.MultiWii("/dev/ttyACM0") #connect via usb
     try:
         while True:
