@@ -1,4 +1,5 @@
-#include <Wire.h>
+#include "pins_arduino.h"
+
 
 //////////////////////CONFIGURATION///////////////////////////////
 #define chanel_number 4  //set the number of chanels
@@ -7,10 +8,13 @@
 #define PPM_PulseLen 300  //set the pulse length
 #define onState 1  //set polarity of the pulses: 1 is positive, 0 is negative
 #define sigPin 9  //set PPM signal output pin on the arduino
-#define bl0_pin 10
-#define bl1_pin 11
+#define bl0_pin 5
+#define bl1_pin 6
 //////////////////////////////////////////////////////////////////
 
+char buf [100];
+volatile byte pos;
+volatile boolean process_it;
 
 /*this array holds the servo values for the ppm signal
   change these values in your code (usually servo values move between 1000 and 2000)*/
@@ -20,9 +24,17 @@ int i2c_buffer[4];
 const int zero_buffer[4] = {0, 0, 0, 0};
 
 void setup() {
-  Wire.begin(0x04);                // join i2c bus with address 0x04
-  Wire.onReceive(receiveEvent); // register event
-  Serial.begin(9600);           // start serial for output
+  Serial.begin (9600);   // debugging
+
+  // have to send on master in, *slave out*
+  pinMode(MISO, OUTPUT);
+  cli();
+  // turn on SPI in slave mode
+  SPCR |= _BV(SPE);
+  // turn on interrupts
+  SPCR |= _BV(SPIE);
+  pos = 0;
+  process_it = false;
 
   //initiallize default ppm values
   for (int i = 0; i < chanel_number; i++) {
@@ -33,7 +45,7 @@ void setup() {
   pinMode(bl1_pin, OUTPUT);
   digitalWrite(sigPin, !onState);  //set the PPM signal pin to the default state (off)
 
-  cli();
+  
   TCCR1A = 0; // set entire TCCR1 register to 0
   TCCR1B = 0;
 
@@ -46,8 +58,9 @@ void setup() {
 
 void loop() {
   //put main code here
-
-
+  Serial.println("loop check");
+  delay(100);
+/*
   static int val = 1;
   for (int i = 0; i < 4; i++) {
     Serial.print(ppm[i]);
@@ -62,7 +75,7 @@ void loop() {
 
   analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
   analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
-  delay(10);
+  delay(10);*/
 }
 
 ISR(TIMER1_COMPA_vect) { //leave this alone
@@ -96,7 +109,25 @@ ISR(TIMER1_COMPA_vect) { //leave this alone
   }
 }
 
-void receiveEvent(int howMany) {
+ISR (SPI_STC_vect)
+{
+
+  byte c = SPDR;
+  Serial.print(c);
+  // add to buffer if room
+  if (pos < sizeof buf)
+  {
+    buf [pos++] = c;
+
+    // example: newline means time to process buffer
+    if (c == '\n')
+      process_it = true;
+
+  }  // end of room available
+}
+
+/*
+  void receiveEvent(int howMany) {
   int command_cnt = 0;
   int bldc_cnt = 0;
   int buffer_cnt = 0;
@@ -130,4 +161,5 @@ void receiveEvent(int howMany) {
       }
     }
   }
-}
+  }
+*/

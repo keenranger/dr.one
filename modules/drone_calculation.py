@@ -1,25 +1,33 @@
+def spi_carrier(command):
+    result=[]
+    for task in command:
+        for letter in str(task).zfill(4):
+            result.append(ord(letter))
+    result.append(ord("\n"))
+    return result
+
 def command_to_ppm_command(command, value):
-    ppm_command = [1500, 1500, 1500, 1500]
+    ppm_command = [1500, 1500, 1500, 1500] #roll pitch yaw throttle
     if (command == 'S'): #stop = hovering
         pass
     elif (command == 'F'): #Forward
-        action[1] += int(value*5)
+        ppm_command[1] += int(value * 5)
     elif (command == 'B'): #Backward
-        action[1] -= int(value*5)
+        ppm_command[1] -= int(value * 5)
 
     elif (command == 'L'): #Left
-        action[0] -= int(value*5)
+        ppm_command[0] -= int(value * 5)
     elif (command == 'R'): #Right
-        action[0] += int(value*5)  
+        ppm_command[0] += int(value * 5)
 
     elif (command == 'U'): #Up
-        action[3] -= int(value*5)
+        ppm_command[3] += int(value * 5)
     elif (command == 'D'): #Down
-        action[3] += int(value*5)
+        ppm_command[3] -= int(value * 5)
 
     elif (command == 'A'): #Arming
-        action[2] = 2000 #yaw
-        action[3] = 1000 #throttle
+        ppm_command[2] = 2000 #yaw
+        ppm_command[3] = 1000 #throttle
     return ppm_command
 
 class PID:
@@ -63,8 +71,8 @@ class PID:
         bl1_setValue +=throttle
         bl0_setValue = constrain(bl0_setValue, 0, 1000)
         bl1_setValue = constrain(bl1_setValue, 0, 1000)
-        bl0=int(bl0_setValue/10)
-        bl1=int(bl1_setValue/10)
+        bl0=int(bl0_setValue)
+        bl1=int(bl1_setValue)
         return [bl0, bl1]
         
 def constrain(val, min_val, max_val):
