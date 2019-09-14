@@ -88,7 +88,15 @@ void loop() {
         string += buf[4 * i + j];
 
       }
-      ppm[i] = string.toInt();
+      if (i==2){
+        ppm[3] = string.toInt();
+      }
+      else if(i==3){
+        ppm[2] = string.toInt();
+      }
+      else{
+        
+      }
     }
     //////////////////////////////
     //    Serial.println (buf);
