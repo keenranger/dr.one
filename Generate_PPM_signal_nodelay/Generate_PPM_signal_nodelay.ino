@@ -67,17 +67,17 @@ void loop() {
     Serial.print(ppm[i]);
     Serial.print(" ");
   }
-  Serial.println("");
-  /*
-    for (int i = 0; i < 2; i++) {
+  Serial.print("");
+
+  for (int i = 0; i < 2; i++) {
     Serial.print(bldc_value[i]);
     Serial.print(" ");
-    }
-    Serial.println("");
+  }
+  Serial.println("");
 
-    analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
-    analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
-  */
+  analogWrite(bl0_pin, map(bldc_value[0], 0, 1000, 0, 255));
+  analogWrite(bl1_pin, map(bldc_value[1], 0, 1000, 0, 255));
+
   if (process_it)
   {
     buf [pos] = 0;
@@ -88,15 +88,25 @@ void loop() {
         string += buf[4 * i + j];
 
       }
-      if (i==2){
+      if (i == 2) {
         ppm[3] = string.toInt();
       }
-      else if(i==3){
+      else if (i == 3) {
         ppm[2] = string.toInt();
       }
-      else{
+      else {
         ppm[i] = string.toInt();
       }
+    }
+    //////////////////////////////
+    ///////////for bldc//////////////
+    for (int i = 4; i < 6; i++) {
+      String string = "";
+      for (int j = 0; j < 4; j++) {
+        string += buf[4 * i + j];
+
+      }
+      bldc_value[i-4] = string.toInt();
     }
     //////////////////////////////
     //    Serial.println (buf);
