@@ -23,7 +23,7 @@ volatile byte pos;
 volatile boolean process_it;
 
 void setup() {
-  Serial.begin(9600);           // start serial for output
+  Serial.begin(115200);           // start serial for output
 
   //initiallize default ppm values
   for (int i = 0; i < chanel_number; i++) {
@@ -35,7 +35,7 @@ void setup() {
   digitalWrite(sigPin, !onState);  //set the PPM signal pin to the default state (off)
 
   cli();
-  
+
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
   // turn on SPI in slave mode
@@ -47,7 +47,7 @@ void setup() {
 
 
 
-  
+
   TCCR1A = 0; // set entire TCCR1 register to 0
   TCCR1B = 0;
 
@@ -61,30 +61,49 @@ void setup() {
 void loop() {
   //put main code here
 
-/*
-  static int val = 1;
-  for (int i = 0; i < 4; i++) {
-    Serial.print(ppm[i]);
-    Serial.print(" ");
-  }
-  Serial.println("");
-  for (int i = 0; i < 2; i++) {
-    Serial.print(bldc_value[i]);
-    Serial.print(" ");
-  }
-  Serial.println("");
 
-  analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
-  analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
+    for (int i = 0; i < 4; i++) {
+      Serial.print(ppm[i]);
+      Serial.print(" ");
+    }
+    Serial.println("");
+    /*
+    for (int i = 0; i < 2; i++) {
+      Serial.print(bldc_value[i]);
+      Serial.print(" ");
+    }
+    Serial.println("");
+
+    analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
+    analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
   */
-  delay(200);
+  if (process_it)
+  {
+    buf [pos] = 0;
+    ///////////for ppm//////////////
+    for (int i = 0; i < 4; i++) {
+      String string = "";
+      for (int j = 0; j < 4; j++) {
+        string += buf[4*i + j];
+
+      }
+      ppm[i] = string.toInt();
+    }
+    //////////////////////////////
+    //    Serial.println (buf);
+    pos = 0;
+    process_it = false;
+  }  // end
 }
+
+
+
 
 ISR (SPI_STC_vect)
 {
 
-  int c = SPDR;
-  Serial.print(c);
+  byte c = SPDR;
+  //  Serial.print(c == '\n');
   // add to buffer if room
   if (pos < sizeof buf)
   {
