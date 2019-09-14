@@ -1,6 +1,5 @@
 #include "pins_arduino.h"
 
-
 //////////////////////CONFIGURATION///////////////////////////////
 #define chanel_number 4  //set the number of chanels
 #define default_servo_value 1500  //set the default servo value
@@ -12,29 +11,19 @@
 #define bl1_pin 6
 //////////////////////////////////////////////////////////////////
 
-char buf [100];
-volatile byte pos;
-volatile boolean process_it;
 
 /*this array holds the servo values for the ppm signal
   change these values in your code (usually servo values move between 1000 and 2000)*/
 int ppm[chanel_number];
 int bldc_value[2] = {0, 0};
-int i2c_buffer[4];
-const int zero_buffer[4] = {0, 0, 0, 0};
+
+
+char buf [100];
+volatile byte pos;
+volatile boolean process_it;
 
 void setup() {
-  Serial.begin (9600);   // debugging
-
-  // have to send on master in, *slave out*
-  pinMode(MISO, OUTPUT);
-  cli();
-  // turn on SPI in slave mode
-  SPCR |= _BV(SPE);
-  // turn on interrupts
-  SPCR |= _BV(SPIE);
-  pos = 0;
-  process_it = false;
+  Serial.begin(115200);           // start serial for output
 
   //initiallize default ppm values
   for (int i = 0; i < chanel_number; i++) {
@@ -45,7 +34,20 @@ void setup() {
   pinMode(bl1_pin, OUTPUT);
   digitalWrite(sigPin, !onState);  //set the PPM signal pin to the default state (off)
 
-  
+  cli();
+
+  // have to send on master in, *slave out*
+  pinMode(MISO, OUTPUT);
+  // turn on SPI in slave mode
+  SPCR |= _BV(SPE);
+  // turn on interrupts
+  SPCR |= _BV(SPIE);
+  pos = 0;
+  process_it = false;
+
+
+
+
   TCCR1A = 0; // set entire TCCR1 register to 0
   TCCR1B = 0;
 
@@ -58,25 +60,59 @@ void setup() {
 
 void loop() {
   //put main code here
-  Serial.println("loop check");
-  delay(100);
-/*
+
+
   static int val = 1;
   for (int i = 0; i < 4; i++) {
     Serial.print(ppm[i]);
     Serial.print(" ");
   }
   Serial.println("");
-  for (int i = 0; i < 2; i++) {
+  /*
+    for (int i = 0; i < 2; i++) {
     Serial.print(bldc_value[i]);
     Serial.print(" ");
-  }
-  Serial.println("");
+    }
+    Serial.println("");
 
-  analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
-  analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
-  delay(10);*/
+    analogWrite(bl0_pin, map(bldc_value[0], 0, 100, 0, 255));
+    analogWrite(bl1_pin, map(bldc_value[1], 0, 100, 0, 255));
+  */
+  if (process_it)
+  {
+    buf [pos] = 0;
+    ///////////for ppm//////////////
+    for (int i = 0; i < 4; i++) {
+      String string = "";
+      for (int j = 0; j < 4; j++) {
+        string += buf[4 * i + j];
+
+      }
+      ppm[i] = string.toInt();
+    }
+    //////////////////////////////
+    //    Serial.println (buf);
+    pos = 0;
+    process_it = false;
+  }  // end
 }
+
+ISR (SPI_STC_vect)
+{
+
+  byte c = SPDR;
+  // add to buffer if room
+  if (pos < sizeof buf)
+  {
+    buf [pos++] = c;
+
+    // example: newline means time to process buffer
+    if (c == '\n')
+      process_it = true;
+
+  }  // end of room available
+}
+
 
 ISR(TIMER1_COMPA_vect) { //leave this alone
   static boolean state = true;
@@ -108,58 +144,3 @@ ISR(TIMER1_COMPA_vect) { //leave this alone
     }
   }
 }
-
-ISR (SPI_STC_vect)
-{
-
-  byte c = SPDR;
-  Serial.print(c);
-  // add to buffer if room
-  if (pos < sizeof buf)
-  {
-    buf [pos++] = c;
-
-    // example: newline means time to process buffer
-    if (c == '\n')
-      process_it = true;
-
-  }  // end of room available
-}
-
-/*
-  void receiveEvent(int howMany) {
-  int command_cnt = 0;
-  int bldc_cnt = 0;
-  int buffer_cnt = 0;
-  int on_flag = 0;
-  while (0 < Wire.available()) { // loop through all but the last
-    char c = Wire.read(); // receive byte as a character
-    if (on_flag == 0) {
-      if (c == '/') {
-        on_flag = 1;
-      }
-    }
-    else {
-      if (c == '/' ) {
-        if (command_cnt < 4) {
-          ppm[command_cnt] = 1000 * i2c_buffer[0] + 100 * i2c_buffer[1] + 10 * i2c_buffer[2] + i2c_buffer[3];
-          command_cnt++;
-          buffer_cnt = 0;
-          memcpy(&i2c_buffer, &zero_buffer, sizeof(zero_buffer));
-        }
-        else {
-          bldc_value[command_cnt - 4] = 1000 * i2c_buffer[0] + 100 * i2c_buffer[1] + 10 * i2c_buffer[2] + i2c_buffer[3];
-          bldc_value[command_cnt - 4] -= 1000;
-          command_cnt++;
-          buffer_cnt = 0;
-          memcpy(&i2c_buffer, &zero_buffer, sizeof(zero_buffer));
-        }
-      }
-      else {//stack buffer
-        i2c_buffer[buffer_cnt] = (int)c;
-        buffer_cnt++;
-      }
-    }
-  }
-  }
-*/
