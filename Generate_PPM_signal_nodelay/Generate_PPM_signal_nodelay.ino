@@ -95,7 +95,7 @@ void loop() {
         ppm[2] = string.toInt();
       }
       else{
-        
+        ppm[i] = string.toInt();
       }
     }
     //////////////////////////////
