@@ -2,8 +2,12 @@ from modules import drone_server, drone_msp, drone_calculation
 from threading import Thread, Lock
 import time
 import spidev
-
+import RPi.GPIO as GPIO
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(26,GPIO.OUT)
+    GPIO.output(26,True)#TODO : 이 부분에서 es가 0일때 켜지면 False를, es가 1일때 켜지면 True를 주시면 됩니다.
+
     spi = spidev.SpiDev()
     spi.open(0, 0)              # open(bus, device)
     spi.mode = 0
