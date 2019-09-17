@@ -16,7 +16,7 @@
   change these values in your code (usually servo values move between 1000 and 2000)*/
 int ppm[chanel_number];
 int bldc_value[2] = {0, 0};
-
+int bldc_trigger = 0;
 
 char buf [100];
 volatile byte pos;
@@ -74,9 +74,17 @@ void loop() {
     Serial.print(" ");
   }
   Serial.println("");
-
-  analogWrite(bl0_pin, map(bldc_value[0], 0, 1000, 0, 255));
-  analogWrite(bl1_pin, map(bldc_value[1], 0, 1000, 0, 255));
+  if ((ppm[2] == 1000) and (ppm[3] == 2000)) {
+    bldc_trigger = 1;
+  }
+  if (bldc_trigger == 1) {
+    analogWrite(bl0_pin, map(bldc_value[0], 0, 1000, 0, 255));
+    analogWrite(bl1_pin, map(bldc_value[1], 0, 1000, 0, 255));
+  }
+  else {
+    analogWrite(bl0_pin, 0);
+    analogWrite(bl1_pin, 0);
+  }
 
   if (process_it)
   {
@@ -106,7 +114,7 @@ void loop() {
         string += buf[4 * i + j];
 
       }
-      bldc_value[i-4] = string.toInt();
+      bldc_value[i - 4] = string.toInt();
     }
     //////////////////////////////
     //    Serial.println (buf);
